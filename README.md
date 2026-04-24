@@ -1,1 +1,0 @@
-# kalimat-krash
