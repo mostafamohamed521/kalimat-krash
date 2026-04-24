@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>مستوى | كلمات كراش</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/game.css">
+</head>
+<body class="game-screen">
+
+    <!-- Header -->
+    <header class="game-header">
+        <button class="home-btn" id="backToMapBtn">🏠</button>
+        <div class="level-info">
+            <span id="levelDisplayText">مستوى 1</span>
+            <span id="modeDisplayText" class="mode-badge">صورة واحدة</span>
+        </div>
+        <div class="coins-display">
+            <img src="assets/images/ui/coin.png" class="coin-icon" onerror="this.style.display='none'">
+            <span id="coinAmount">0</span>
+            <span class="coin-emoji-fallback">🪙</span>
+        </div>
+    </header>
+
+    <!-- Separator -->
+    <div class="header-shadow"></div>
+
+    <!-- Game area -->
+    <main class="game-area" id="gameArea">
+
+        <!-- Mode 1 & 2: image/emoji + word slots + standard grid -->
+        <div class="standard-mode-area" id="standardModeArea">
+            <div class="level-image-wrapper" id="imageWrapper"></div>
+            <div class="target-words-container" id="targetWordsContainer"></div>
+            <div class="letter-grid-wrapper">
+                <div class="letter-grid" id="letterGrid"></div>
+            </div>
+        </div>
+
+        <!-- Mode 3: multi-image + word-search grid (shown/hidden by JS) -->
+        <div class="multi-mode-area" id="multiModeArea" style="display:none">
+            <div class="multi-images-section" id="multiImagesSection"></div>
+            <div class="wordsearch-grid-wrapper">
+                <div class="wordsearch-grid" id="wordsearchGrid"></div>
+            </div>
+        </div>
+
+        <!-- Mode 4: crossword area (shown/hidden by JS) -->
+        <div class="crossword-mode-area" id="crosswordModeArea" style="display:none">
+            <div class="crossword-grid-section" id="crosswordGridSection"></div>
+            <div class="crossword-clue-area" id="crosswordClueArea" style="display:none">
+                <div class="clue-image" id="clueImage"></div>
+                <div class="mini-grid-wrapper" id="miniGridWrapper"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer hints -->
+    <footer class="game-footer">
+        <button class="hint-btn" id="hintLetterBtn">
+            <span class="hint-icon">🔤</span>
+            <span class="hint-label">تلميح حرف</span>
+            <span class="hint-cost">10 🪙</span>
+        </button>
+        <button class="hint-btn hint-word-btn" id="hintWordBtn">
+            <span class="hint-icon">📝</span>
+            <span class="hint-label">تلميح كلمة</span>
+            <span class="hint-cost">20 🪙</span>
+        </button>
+    </footer>
+
+    <!-- Completion modal -->
+    <div class="completion-modal" id="completionModal">
+        <div class="modal-content">
+            <div class="modal-emoji">🎉</div>
+            <h2>مبروك!</h2>
+            <p>أكملت المستوى بنجاح</p>
+            <div class="coins-earned-row">
+                <span>+</span>
+                <span id="earnedCoins">3</span>
+                <span>🪙</span>
+            </div>
+            <button id="nextLevelBtn" class="next-btn">المستوى التالي ←</button>
+        </div>
+    </div>
+
+    <!-- Toast message -->
+    <div class="message-toast" id="messageToast">
+        <span id="toastMessage"></span>
+    </div>
+
+    <script src="js/algorithms.js"></script>
+    <script src="js/levels-data.js"></script>
+    <script src="js/game-engine.js"></script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>خريطة الجزر | كلمات كراش</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/map.css">
+</head>
+<body class="map-screen">
+    <div class="ocean-background"></div>
+    <canvas id="waveCanvas" class="wave-canvas"></canvas>
+    <div class="help-icon" id="helpButton">؟</div>
+    <canvas id="mapCanvas" class="map-canvas"></canvas>
+    <div class="help-modal" id="helpModal">
+        <div class="help-content">
+            <span class="close-help">&times;</span>
+            <h2>🌟 كيف تلعب؟</h2>
+            <p>اسحب الشاشة للتنقل بين المستويات.</p>
+            <p>🟢 أخضر: صورة وكلمات (50 مستوى)</p>
+            <p>🟡 أصفر: أمثال مصرية (20 مستوى)</p>
+            <p>🟣 بنفسجي: صور متعددة (15 مستوى)</p>
+            <p>🔴 أحمر: كلمات متقاطعة (15 مستوى)</p>
+        </div>
+    </div>
+    <script src="js/levels-data.js"></script>
+    <script src="js/map.js"></script>
+</body>
+</html>

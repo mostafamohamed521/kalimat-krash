@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>كلمات كراش | رحلة الكلمات</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body class="splash-screen">
+    <div class="splash-background"></div>
+    <div class="splash-overlay"></div>
+    <div class="start-button-container">
+        <button id="startGameBtn" class="start-button">
+            <span>ابدأ المغامرة</span>
+            <span class="btn-glow"></span>
+        </button>
+    </div>
+    <script>
+        document.getElementById('startGameBtn').addEventListener('click', function() {
+            this.style.transform = 'scale(0.95)';
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.5s';
+            setTimeout(function() { window.location.href = 'map.html'; }, 300);
+        });
+    </script>
+</body>
+</html>
