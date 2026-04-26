@@ -1,17 +1,19 @@
-
+// ============================================
+// KALIMAT CRASH — map.js
+// خريطة 100 مستوى — مسار أفعواني بتباعد مناسب
+// ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
     setupWaveCanvas();
-    drawIslands();
     initMap();
     setupHelpModal();
-    // Fade in
+
     document.body.style.opacity = '0';
     document.body.style.transition = 'opacity 0.5s';
     requestAnimationFrame(() => setTimeout(() => document.body.style.opacity = '1', 60));
 });
 
-// ==================== WAVE ANIMATION ====================
+// ==================== أمواج ====================
 
 function setupWaveCanvas() {
     const canvas = document.getElementById('waveCanvas');
@@ -25,7 +27,6 @@ function setupWaveCanvas() {
     function drawWaves() {
         ctx.clearRect(0, 0, w, h);
 
-        // Wave 1 — light foam
         ctx.beginPath();
         for (let x = 0; x <= w; x += 15) {
             const y = h * 0.68 + Math.sin(x * 0.012 + t) * 22;
@@ -35,7 +36,6 @@ function setupWaveCanvas() {
         ctx.fillStyle = 'rgba(255,255,255,0.07)';
         ctx.fill();
 
-        // Wave 2 — slightly different phase
         ctx.beginPath();
         for (let x = 0; x <= w; x += 15) {
             const y = h * 0.73 + Math.sin(x * 0.018 + t * 1.4 + 1.2) * 18;
@@ -45,82 +45,49 @@ function setupWaveCanvas() {
         ctx.fillStyle = 'rgba(200,240,255,0.05)';
         ctx.fill();
 
-        // Wave 3 — small ripples
-        ctx.beginPath();
-        for (let x = 0; x <= w; x += 10) {
-            const y = h * 0.55 + Math.sin(x * 0.025 + t * 0.8) * 12;
-            x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-        }
-        ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.closePath();
-        ctx.fillStyle = 'rgba(255,255,255,0.04)';
-        ctx.fill();
-
         t += 0.018;
         requestAnimationFrame(drawWaves);
     }
     drawWaves();
 }
 
-// ==================== ISLANDS (decorative) ====================
-
-function drawIslands() {
-    const layer = document.getElementById('islandsLayer');
-    if (!layer) return;
-    const islands = [
-        { left: '8%',  top: '20%', size: 60 },
-        { left: '75%', top: '15%', size: 45 },
-        { left: '85%', top: '55%', size: 55 },
-        { left: '5%',  top: '65%', size: 50 },
-        { left: '50%', top: '80%', size: 40 },
-    ];
-    islands.forEach(isl => {
-        const div = document.createElement('div');
-        div.className = 'island';
-        div.style.cssText = `
-            left:${isl.left}; top:${isl.top};
-            width:${isl.size}px; height:${isl.size * 0.45}px;
-            background: radial-gradient(ellipse at 50% 60%, #5d9e4a, #3a7030);
-            border-radius: 50%;
-            box-shadow: 0 6px 0 #2a5022, 0 ${isl.size*0.25}px ${isl.size*0.4}px rgba(0,0,0,0.2);
-            opacity: 0.7;
-        `;
-        // Palm tree
-        const palm = document.createElement('div');
-        palm.style.cssText = `
-            position:absolute; left:42%; bottom:80%;
-            width:4px; height:${isl.size*0.6}px;
-            background: #7a5c35; border-radius:2px;
-        `;
-        // Leaves
-        const leaf = document.createElement('div');
-        leaf.style.cssText = `
-            position:absolute; top:-10px; left:-12px;
-            width:28px; height:12px;
-            background: radial-gradient(ellipse, #5d9e4a, transparent);
-            border-radius:50%; opacity:0.9;
-        `;
-        palm.appendChild(leaf);
-        div.appendChild(palm);
-        layer.appendChild(div);
-    });
-}
-
-// ==================== MAP CANVAS ====================
+// ==================== خريطة المستويات ====================
 
 let mapCanvas, mapCtx;
 let panX = 0, panY = 0;
-let isDragging = false, lastX = 0, lastY = 0;
+let isDragging = false, lastMouseX = 0, lastMouseY = 0;
 let levels = [];
 
-const MAP_W = 1800, MAP_H = 5800;
-const RADIUS = 34;
+const LEVEL_COUNT = 100;
+const RADIUS = 30;          // نصف قطر الدائرة
+const SPACING = 90;         // المسافة بين مركز كل مستوى والتالي (px)
+const MAP_W = 800;
+
 const MODE_COLORS = {
-    1: { fill: '#27ae60', shadow: '#1a7a44', border: '#a3e4d7' },
-    2: { fill: '#d4ac0d', shadow: '#9a7b05', border: '#f9e58a' },
-    3: { fill: '#7d3c98', shadow: '#5b2b72', border: '#d7bde2' },
-    4: { fill: '#c0392b', shadow: '#8e2218', border: '#f1948a' },
+    1: { fill: '#27ae60', shadow: '#1a7a44', border: '#a3e4d7', text: '#fff' },
+    2: { fill: '#d4ac0d', shadow: '#9a7b05', border: '#f9e58a', text: '#fff' },
+    3: { fill: '#7d3c98', shadow: '#5b2b72', border: '#d7bde2', text: '#fff' },
+    4: { fill: '#c0392b', shadow: '#8e2218', border: '#f1948a', text: '#fff' },
 };
-const LOCKED_COLORS = { fill: '#7f8c8d', shadow: '#5d6d7e', border: '#bdc3c7' };
+const LOCKED_COLORS = { fill: '#5d6d7e', shadow: '#34495e', border: '#bdc3c7', text: 'rgba(255,255,255,0.5)' };
+
+// توليد مسار أفعواني لـ 100 نقطة بتباعد ثابت
+function generateSnakePath(count) {
+    const pts = [];
+    const mapHeight = (count - 1) * SPACING + RADIUS * 2 + 40;
+    const centerX = MAP_W / 2;
+    const amplitude = (MAP_W / 2) - RADIUS - 20; // اتساع الانحناء
+
+    for (let i = 0; i < count; i++) {
+        // نبدأ من الأسفل (مستوى 1) إلى الأعلى (مستوى 100)
+        const y = mapHeight - RADIUS - 20 - i * SPACING;
+        // موجة جيبية تعطي شكل أفعوان واضح
+        const wave = Math.sin(i * Math.PI / 6) * amplitude * 0.45;
+        const x = centerX + wave;
+        pts.push({ x, y });
+    }
+    return { pts, mapHeight };
+}
 
 function initMap() {
     mapCanvas = document.getElementById('mapCanvas');
@@ -128,54 +95,79 @@ function initMap() {
     levels = getAllLevels();
 
     function resize() {
-        mapCanvas.width = window.innerWidth;
+        mapCanvas.width  = window.innerWidth;
         mapCanvas.height = window.innerHeight;
-        // Start view at bottom of path
-        panX = mapCanvas.width / 2 - MAP_W / 2;
-        panY = mapCanvas.height - MAP_H - 20;
+
+        const { mapHeight } = generateSnakePath(LEVEL_COUNT);
+        // نبدأ العرض من الأسفل (مستوى 1 ظاهر)
+        panX = (mapCanvas.width  - MAP_W) / 2;
+        panY = mapCanvas.height - mapHeight - 20;
+        clampPan();
         drawMap();
     }
+
     window.addEventListener('resize', resize);
     resize();
 
-    // Mouse drag
-    mapCanvas.addEventListener('mousedown', e => { isDragging = true; lastX = e.clientX; lastY = e.clientY; mapCanvas.style.cursor = 'grabbing'; });
-    window.addEventListener('mousemove', e => { if (!isDragging) return; e.preventDefault(); panX += e.clientX - lastX; panY += e.clientY - lastY; lastX = e.clientX; lastY = e.clientY; drawMap(); });
+    // سحب بالماوس
+    mapCanvas.addEventListener('mousedown', e => {
+        isDragging = true;
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+        mapCanvas.style.cursor = 'grabbing';
+    });
+    window.addEventListener('mousemove', e => {
+        if (!isDragging) return;
+        panX += e.clientX - lastMouseX;
+        panY += e.clientY - lastMouseY;
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+        clampPan();
+        drawMap();
+    });
     window.addEventListener('mouseup', () => { isDragging = false; mapCanvas.style.cursor = 'grab'; });
 
-    // Touch drag
-    mapCanvas.addEventListener('touchstart', e => { e.preventDefault(); isDragging = true; lastX = e.touches[0].clientX; lastY = e.touches[0].clientY; }, { passive: false });
-    mapCanvas.addEventListener('touchmove', e => { e.preventDefault(); if (!isDragging) return; panX += e.touches[0].clientX - lastX; panY += e.touches[0].clientY - lastY; lastX = e.touches[0].clientX; lastY = e.touches[0].clientY; drawMap(); }, { passive: false });
+    // سحب باللمس
+    mapCanvas.addEventListener('touchstart', e => {
+        e.preventDefault();
+        isDragging = true;
+        lastMouseX = e.touches[0].clientX;
+        lastMouseY = e.touches[0].clientY;
+    }, { passive: false });
+    mapCanvas.addEventListener('touchmove', e => {
+        e.preventDefault();
+        if (!isDragging) return;
+        panX += e.touches[0].clientX - lastMouseX;
+        panY += e.touches[0].clientY - lastMouseY;
+        lastMouseX = e.touches[0].clientX;
+        lastMouseY = e.touches[0].clientY;
+        clampPan();
+        drawMap();
+    }, { passive: false });
     mapCanvas.addEventListener('touchend', () => { isDragging = false; });
 
-    // Click
-    mapCanvas.addEventListener('click', handleClick);
+    // نقر لفتح مستوى
+    mapCanvas.addEventListener('click', handleMapClick);
 
-    // Keyboard
+    // لوحة المفاتيح
     window.addEventListener('keydown', e => {
-        const s = 70;
+        const s = 80;
         if (e.key === 'ArrowUp')    panY += s;
         if (e.key === 'ArrowDown')  panY -= s;
-        if (e.key === 'ArrowLeft')  panX += s;
-        if (e.key === 'ArrowRight') panX -= s;
+        clampPan();
         drawMap();
     });
 }
 
-function generateSnakePath(count) {
-    const pts = [];
-    const startX = MAP_W / 2;
-    const startY = MAP_H - 200;
-    const stepY = (MAP_H - 400) / (count - 1);
+function clampPan() {
+    const { mapHeight } = generateSnakePath(LEVEL_COUNT);
+    // نمنع التمرير خارج حدود الخريطة
+    const minY = mapCanvas.height - mapHeight - 40;
+    const maxY = 40;
+    panY = Math.min(maxY, Math.max(minY, panY));
 
-    for (let i = 0; i < count; i++) {
-        const t = i / (count - 1);
-        const y = startY - i * stepY;
-        const amplitude = 260 * (1 - t * 0.35);
-        const x = startX + Math.sin(i * 0.08) * amplitude + Math.cos(i * 0.04) * 80;
-        pts.push({ x, y });
-    }
-    return pts;
+    // أفقياً نسمح بهامش صغير
+    panX = Math.min(40, Math.max(mapCanvas.width - MAP_W - 40, panX));
 }
 
 function drawMap() {
@@ -184,28 +176,30 @@ function drawMap() {
     ctx.save();
     ctx.translate(panX, panY);
 
-    const pts = generateSnakePath(100);
+    const { pts } = generateSnakePath(LEVEL_COUNT);
 
-    // Draw dashed connecting path
+    // ---- رسم المسار المتقطع ----
     ctx.beginPath();
     ctx.moveTo(pts[0].x, pts[0].y);
     for (let i = 1; i < pts.length; i++) {
-        const p = pts[i - 1], c = pts[i];
-        const cpx = (p.x + c.x) / 2, cpy = (p.y + c.y) / 2;
-        ctx.quadraticCurveTo(p.x, p.y, cpx, cpy);
+        // منحنى ناعم بين نقطتين
+        const prev = pts[i - 1], curr = pts[i];
+        const cx = (prev.x + curr.x) / 2, cy = (prev.y + curr.y) / 2;
+        ctx.quadraticCurveTo(prev.x, prev.y, cx, cy);
     }
-    ctx.strokeStyle = 'rgba(255,255,255,0.55)';
-    ctx.lineWidth = 7;
-    ctx.setLineDash([22, 14]);
+    ctx.quadraticCurveTo(pts[pts.length-1].x, pts[pts.length-1].y, pts[pts.length-1].x, pts[pts.length-1].y);
+    ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+    ctx.lineWidth = 6;
+    ctx.setLineDash([18, 14]);
     ctx.lineCap = 'round';
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Draw level circles
-    levels.forEach((lvl, i) => {
-        if (i >= pts.length) return;
-        drawLevelCircle(ctx, pts[i].x, pts[i].y, lvl);
-    });
+    // ---- رسم دوائر المستويات ----
+    for (let i = 0; i < pts.length; i++) {
+        if (i >= levels.length) break;
+        drawLevelCircle(ctx, pts[i].x, pts[i].y, levels[i]);
+    }
 
     ctx.restore();
 }
@@ -214,82 +208,90 @@ function drawLevelCircle(ctx, x, y, lvl) {
     const r = RADIUS;
     const colors = lvl.unlocked ? MODE_COLORS[lvl.mode] : LOCKED_COLORS;
 
-    // Outer glow
+    // ظل أسفل (تأثير ثلاثي الأبعاد)
     ctx.beginPath();
-    ctx.arc(x, y, r + 8, 0, Math.PI * 2);
-    ctx.fillStyle = lvl.unlocked
-        ? `${colors.fill}22`
-        : 'rgba(100,100,100,0.1)';
-    ctx.fill();
-
-    // Shadow bottom disc (3D effect)
-    ctx.beginPath();
-    ctx.arc(x, y + 7, r, 0, Math.PI * 2);
+    ctx.arc(x, y + 6, r, 0, Math.PI * 2);
     ctx.fillStyle = colors.shadow;
     ctx.fill();
 
-    // Main circle with gradient
-    const grad = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, 2, x, y, r + 4);
-    grad.addColorStop(0, lighten(colors.fill, 35));
-    grad.addColorStop(0.6, colors.fill);
+    // الدائرة الرئيسية بتدرج
+    const grad = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, 2, x, y, r);
+    grad.addColorStop(0, lightenColor(colors.fill, 40));
+    grad.addColorStop(0.65, colors.fill);
     grad.addColorStop(1, colors.shadow);
+
     ctx.beginPath();
     ctx.arc(x, y, r, 0, Math.PI * 2);
     ctx.fillStyle = grad;
     ctx.fill();
 
-    // Border ring
+    // حلقة الحدود
     ctx.strokeStyle = colors.border;
-    ctx.lineWidth = 3.5;
+    ctx.lineWidth = 3;
     ctx.stroke();
 
-    // Inner highlight
+    // بريق داخلي
     ctx.beginPath();
-    ctx.arc(x - r * 0.28, y - r * 0.28, r * 0.35, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255,255,255,0.22)';
+    ctx.arc(x - r * 0.28, y - r * 0.3, r * 0.3, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
     ctx.fill();
 
-    // Text or lock icon
+    // النص
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
     if (lvl.unlocked) {
-        ctx.font = `bold 17px 'Cairo', Tahoma, sans-serif`;
+        ctx.font = `bold 15px 'Cairo', Tahoma, sans-serif`;
         ctx.fillStyle = '#fff';
-        ctx.shadowColor = 'rgba(0,0,0,0.4)';
-        ctx.shadowBlur = 6;
+        ctx.shadowColor = 'rgba(0,0,0,0.5)';
+        ctx.shadowBlur = 5;
         ctx.fillText(lvl.id, x, y);
         ctx.shadowBlur = 0;
     } else {
-        ctx.font = `20px serif`;
-        ctx.fillText('🔒', x, y - 5);
-        ctx.font = `bold 12px 'Cairo', sans-serif`;
-        ctx.fillStyle = 'rgba(255,255,255,0.7)';
-        ctx.fillText(lvl.id, x, y + 14);
+        ctx.font = '17px serif';
+        ctx.fillText('🔒', x, y - 4);
+        ctx.font = `bold 10px 'Cairo', sans-serif`;
+        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+        ctx.fillText(lvl.id, x, y + 12);
+    }
+
+    // نضيف نقطة صفراء صغيرة للمستوى الحالي (آخر مستوى مفتوح)
+    if (lvl.unlocked) {
+        const nextLocked = levels[lvl.id] && !levels[lvl.id].unlocked;
+        if (nextLocked || lvl.id === 100) {
+            ctx.beginPath();
+            ctx.arc(x + r - 4, y - r + 4, 7, 0, Math.PI * 2);
+            ctx.fillStyle = '#f1c40f';
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
     }
 }
 
-function lighten(hex, pct) {
-    // Simple lighten by mixing with white
+function lightenColor(hex, amount) {
     try {
         const n = parseInt(hex.replace('#', ''), 16);
-        const r = Math.min(255, (n >> 16) + pct * 2);
-        const g = Math.min(255, ((n >> 8) & 0xff) + pct * 2);
-        const b = Math.min(255, (n & 0xff) + pct * 2);
+        const r = Math.min(255, (n >> 16) + amount * 2);
+        const g = Math.min(255, ((n >> 8) & 0xff) + amount * 2);
+        const b = Math.min(255, (n & 0xff) + amount * 2);
         return `rgb(${r},${g},${b})`;
     } catch { return hex; }
 }
 
-function handleClick(e) {
+function handleMapClick(e) {
     const rect = mapCanvas.getBoundingClientRect();
     const wx = (e.clientX - rect.left) * (mapCanvas.width / rect.width) - panX;
     const wy = (e.clientY - rect.top) * (mapCanvas.height / rect.height) - panY;
 
-    const pts = generateSnakePath(100);
+    const { pts } = generateSnakePath(LEVEL_COUNT);
+
     for (let i = 0; i < pts.length; i++) {
         const dx = pts[i].x - wx, dy = pts[i].y - wy;
-        if (Math.sqrt(dx * dx + dy * dy) < RADIUS + 8) {
+        if (Math.sqrt(dx * dx + dy * dy) < RADIUS + 10) {
             const lvl = levels[i];
+            if (!lvl) return;
             if (lvl.unlocked) {
                 document.body.style.opacity = '0';
                 document.body.style.transition = 'opacity 0.3s';
@@ -320,17 +322,17 @@ function showMapToast(msg) {
     }
     t.textContent = msg;
     t.style.opacity = '1';
-    setTimeout(() => t.style.opacity = '0', 2200);
+    setTimeout(() => { t.style.opacity = '0'; }, 2200);
 }
 
-// ==================== HELP MODAL ====================
+// ==================== نافذة المساعدة ====================
 
 function setupHelpModal() {
-    const btn = document.getElementById('helpButton');
+    const btn   = document.getElementById('helpButton');
     const modal = document.getElementById('helpModal');
-    const closeBtn = document.getElementById('closeHelp');
+    const close = document.querySelector('.close-help');
 
-    btn.addEventListener('click', () => modal.classList.add('open'));
-    closeBtn.addEventListener('click', () => modal.classList.remove('open'));
-    modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+    if (btn)   btn.addEventListener('click', () => modal.classList.add('open'));
+    if (close) close.addEventListener('click', () => modal.classList.remove('open'));
+    if (modal) modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
 }

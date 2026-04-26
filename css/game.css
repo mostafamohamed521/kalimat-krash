@@ -1,6 +1,6 @@
 /* ============================================
    KALIMAT CRASH - GAME CSS
-   All 4 modes styled to match screenshots
+   All 4 modes styled
    ============================================ */
 
 /* ==============================
@@ -86,7 +86,6 @@
 .coin-icon { width: 22px; height: 22px; object-fit: contain; }
 .coin-emoji-fallback { font-size: 1.3rem; }
 
-/* Header divider shadow */
 .header-shadow {
     height: 3px;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
@@ -120,7 +119,6 @@
     gap: 10px;
 }
 
-/* Image wrapper (rounded square with circle dots border effect) */
 .level-image-wrapper {
     background: rgba(255,255,255,0.12);
     backdrop-filter: blur(8px);
@@ -187,9 +185,7 @@
     transition: all 0.25s;
     box-shadow: 0 3px 0 rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
 }
-
 .word-slot.found {
-    background: #27ae60;
     color: #fff;
     border-color: #a3e4d7;
     box-shadow: 0 3px 0 #1e8449, 0 6px 16px rgba(39,174,96,0.35);
@@ -197,34 +193,36 @@
 
 /* ==============================
    LETTER GRID (Mode 1 & 2)
-   Free-path adjacency mode
+   الجريد بحجم الكلمات بالضبط
    ============================== */
 .letter-grid-wrapper {
     background: rgba(255,255,255,0.1);
     backdrop-filter: blur(12px);
-    padding: 14px 12px;
+    padding: 12px 10px;
     border-radius: 36px;
     border: 2px solid rgba(255,255,255,0.15);
     box-shadow: 0 10px 30px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.1);
-    width: 100%;
-    max-width: 440px;
+    width: fit-content;          /* ← عرض بحجم المحتوى فقط */
+    max-width: 95vw;
+    align-self: center;
 }
 
 .letter-grid {
     display: grid;
-    gap: 7px;
+    gap: 6px;
     justify-content: center;
+    width: fit-content;          /* ← عرض بحجم المحتوى فقط */
 }
 
 .grid-cell {
-    width: 50px;
-    height: 50px;
+    width: 48px;
+    height: 48px;
     background: #dce8f0;
     border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 1.45rem;
     font-weight: 800;
     color: #0a2744;
     box-shadow: 0 0 0 1px rgba(255,255,255,0.6), 0 5px 0 #9bafc0, 0 6px 12px rgba(0,0,0,0.15);
@@ -234,25 +232,30 @@
     -webkit-user-select: none;
     position: relative;
     font-family: 'Cairo', sans-serif;
+    flex-shrink: 0;
 }
-
 .grid-cell:active {
     transform: translateY(3px);
     box-shadow: 0 0 0 1px rgba(255,255,255,0.6), 0 2px 0 #9bafc0, 0 4px 8px rgba(0,0,0,0.15);
 }
 
-/* Color states while selecting */
-.grid-cell.selected-orange { background: #e67e22; color: #fff; box-shadow: 0 5px 0 #b96005; }
-.grid-cell.selected-blue   { background: #2980b9; color: #fff; box-shadow: 0 5px 0 #1a5e8a; }
-.grid-cell.selected-purple { background: #8e44ad; color: #fff; box-shadow: 0 5px 0 #6b2f8c; }
-.grid-cell.selected-red    { background: #c0392b; color: #fff; box-shadow: 0 5px 0 #922b21; }
-.grid-cell.selected-teal   { background: #1abc9c; color: #fff; box-shadow: 0 5px 0 #148f77; }
-
-/* Used (found) cell */
+/* Used cell */
 .grid-cell.used {
-    opacity: 0.45;
+    opacity: 0.5;
     cursor: default;
     box-shadow: none;
+}
+
+/* خلية فارغة جوه الماتريكس — زجاجية شفافة بالكامل */
+.grid-cell-empty {
+    width: 48px;
+    height: 48px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 14px;
+    cursor: default;
+    pointer-events: none;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);
+    flex-shrink: 0;
 }
 
 /* Hint flash */
@@ -263,7 +266,7 @@
 }
 @keyframes hintPulse {
     0%,100% { transform: scale(1); }
-    50%      { transform: scale(1.15); }
+    50%      { transform: scale(1.18); }
 }
 
 /* ==============================
@@ -301,33 +304,35 @@
     position: relative;
     border: 2px solid rgba(255,255,255,0.12);
     transition: 0.2s;
+    overflow: hidden;
 }
-
 .multi-img-item img {
     width: 100%; height: 100%;
     object-fit: cover;
     border-radius: 12px;
 }
-
-/* Check mark overlay when found */
+.multi-img-item.found {
+    border-color: #27ae60;
+    background: rgba(39,174,96,0.25);
+}
 .multi-img-item.found::after {
-    content: '✅';
+    content: '✓';
     position: absolute;
-    top: -8px; right: -8px;
-    font-size: 1.3rem;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    top: 2px; right: 4px;
+    font-size: 1rem;
+    color: #27ae60;
+    font-weight: 900;
 }
 
-/* Word-search grid (Mode 3) — lines/columns/diagonals */
 .wordsearch-grid-wrapper {
     background: rgba(255,255,255,0.1);
     backdrop-filter: blur(12px);
-    padding: 14px 12px;
+    padding: 12px 10px;
     border-radius: 28px;
     border: 2px solid rgba(255,255,255,0.15);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
     width: 100%;
     max-width: 440px;
+    overflow-x: auto;
 }
 
 .wordsearch-grid {
@@ -336,109 +341,150 @@
     justify-content: center;
 }
 
-/* Wordsearch cells — glass look */
 .ws-cell {
-    width: 44px;
-    height: 44px;
-    background: rgba(255,255,255,0.12);
+    width: 38px;
+    height: 38px;
+    background: rgba(220,232,240,0.92);
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.3rem;
+    font-size: 1.15rem;
     font-weight: 800;
-    color: #fff;
-    border: 1px solid rgba(255,255,255,0.18);
+    color: #0a2744;
     cursor: pointer;
     user-select: none;
-    transition: 0.05s;
+    transition: 0.08s;
     font-family: 'Cairo', sans-serif;
-    position: relative;
+    flex-shrink: 0;
 }
-
-/* Selection highlight — pill/oval overlay per word color */
 .ws-cell.selecting {
-    background: rgba(241, 196, 15, 0.5);
-    border-color: #f1c40f;
+    background: #f1c40f;
+    color: #1e3c72;
+    transform: scale(1.08);
 }
-
-/* Found word highlight stays as colored pill */
 .ws-cell.found-word {
-    z-index: 1;
-}
-
-/* Colored oval overlays drawn via JS canvas OR CSS background */
-.ws-highlight-layer {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    border-radius: 10px;
-    opacity: 0.55;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: 900;
 }
 
 /* ==============================
-   MODE 4: CROSSWORD
+   MODE 4: CROSSWORD — كلمات متقاطعة
    ============================== */
 .crossword-mode-area {
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
+    padding-bottom: 8px;
 }
 
-/* Main crossword grid */
-.crossword-main-grid {
-    display: grid;
-    gap: 6px;
-    justify-content: center;
-    padding: 12px;
-    background: rgba(255,255,255,0.1);
+/* غلاف الجريد الرئيسي */
+.crossword-grid-section {
+    background: rgba(10,25,45,0.75);
+    backdrop-filter: blur(14px);
+    padding: 14px 12px;
     border-radius: 28px;
-    border: 2px solid rgba(255,255,255,0.15);
-    backdrop-filter: blur(8px);
-    width: 100%;
-    max-width: 440px;
+    border: 2px solid rgba(255,255,255,0.12);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+    width: fit-content;
+    max-width: 95vw;
+    overflow-x: auto;
 }
 
+/* الجريد نفسه */
+.cw-board {
+    display: grid;
+    gap: 5px;
+    width: fit-content;
+}
+
+/* خلية بيضاء (فيها حرف) */
 .cw-cell {
-    width: 48px;
-    height: 48px;
-    background: rgba(20, 40, 60, 0.75);
-    border-radius: 12px;
+    width: 46px;
+    height: 46px;
+    background: rgba(20,40,65,0.9);
+    border: 2px solid rgba(255,255,255,0.18);
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.3rem;
-    font-weight: 800;
-    color: #f1c40f;
-    border: 1.5px solid rgba(255,255,255,0.08);
+    position: relative;
     cursor: pointer;
-    transition: 0.1s;
+    transition: background 0.15s, border-color 0.15s, transform 0.08s;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+    user-select: none;
+    flex-shrink: 0;
+}
+.cw-cell:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,0.4); }
+
+/* الحرف داخل الخلية */
+.cw-letter {
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: #f1c40f;
     font-family: 'Cairo', sans-serif;
-    box-shadow: 0 3px 0 rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06);
+    line-height: 1;
 }
 
-.cw-cell.empty {
-    background: rgba(10, 20, 35, 0.6);
-    color: transparent;
-    cursor: default;
-    opacity: 0.5;
+/* خلية فراغ (لا كلمة تمر بها) */
+.cw-void {
+    width: 46px;
+    height: 46px;
+    background: transparent;
+    flex-shrink: 0;
 }
 
-.cw-cell.completed {
-    background: #d4ac0d;
-    color: #fff;
-    border-color: #f9e58a;
-    box-shadow: 0 3px 0 #9a7b05, 0 6px 16px rgba(212,172,13,0.4);
+/* رقم الكلمة في الزاوية */
+.cw-num {
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    font-size: 0.58rem;
+    font-weight: 800;
+    color: rgba(255,255,255,0.5);
+    line-height: 1;
+    pointer-events: none;
+    font-family: 'Cairo', sans-serif;
 }
 
-.cw-cell.active-word {
-    background: #2c3e50;
+/* خلية الكلمة المختارة حالياً */
+.cw-cell.cw-active {
+    background: #1a3d5c;
     border-color: #f1c40f;
+    border-width: 2.5px;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.4), 0 0 12px rgba(241,196,15,0.35);
 }
 
-/* Clue area — shows image/emoji of the active word */
+/* خلية تم حلها */
+.cw-cell.cw-done {
+    background: #1a4a2e;
+    border-color: #27ae60;
+    cursor: default;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.3), 0 0 10px rgba(39,174,96,0.2);
+}
+.cw-cell.cw-done .cw-letter {
+    color: #7deca1;
+}
+.cw-cell.cw-done .cw-num {
+    color: rgba(125,236,161,0.4);
+}
+
+/* أنيميشن ظهور الحرف */
+.cw-cell.cw-reveal-anim {
+    animation: cwReveal 0.35s ease forwards;
+}
+@keyframes cwReveal {
+    0%   { transform: scale(0.6); opacity: 0.4; }
+    60%  { transform: scale(1.12); }
+    100% { transform: scale(1);   opacity: 1; }
+}
+
+/* ==============================
+   منطقة التلميح والإدخال (المود 4)
+   ============================== */
 .crossword-clue-area {
     width: 100%;
     max-width: 440px;
@@ -448,22 +494,32 @@
     gap: 10px;
 }
 
+/* صندوق التلميح */
 .clue-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
     background: rgba(255,255,255,0.1);
-    border-radius: 28px;
-    padding: 14px 24px;
-    font-size: 3.2rem;
+    border-radius: 24px;
+    padding: 10px 24px;
     border: 2px solid rgba(255,255,255,0.15);
     backdrop-filter: blur(6px);
-    text-align: center;
-    min-width: 100px;
+    width: 100%;
+}
+.cw-clue-icon  { font-size: 2.8rem; line-height: 1; }
+.cw-clue-label {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.65);
+    font-weight: 700;
+    font-family: 'Cairo', sans-serif;
 }
 
-/* Mini letter grid (Mode 4 pick-letters) */
+/* غلاف لوحة الإدخال */
 .mini-grid-wrapper {
     background: rgba(255,255,255,0.1);
     border-radius: 28px;
-    padding: 14px;
+    padding: 14px 12px;
     border: 2px solid rgba(255,255,255,0.15);
     backdrop-filter: blur(8px);
     width: 100%;
@@ -471,111 +527,109 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 }
 
-.mini-letter-grid {
-    display: grid;
-    gap: 7px;
-    justify-content: center;
-}
-
-.mini-cell {
-    width: 46px;
-    height: 46px;
-    background: #dce8f0;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.3rem;
-    font-weight: 800;
-    color: #0a2744;
-    box-shadow: 0 5px 0 #9bafc0, 0 4px 10px rgba(0,0,0,0.15);
-    cursor: pointer;
-    transition: 0.08s;
-    user-select: none;
-    font-family: 'Cairo', sans-serif;
-}
-.mini-cell:active { transform: translateY(3px); box-shadow: 0 2px 0 #9bafc0; }
-
-/* Selected letter slot (gray bg = picked) */
-.mini-cell.selected {
-    background: #7f8c8d;
-    color: #fff;
-    box-shadow: 0 4px 0 #5d6d7e;
-}
-
-/* Wrong answer flash */
-.mini-cell.wrong {
-    background: #e74c3c !important;
-    color: #fff !important;
-    animation: wrongShake 0.4s ease;
-}
-@keyframes wrongShake {
-    0%,100% { transform: translateX(0); }
-    25%      { transform: translateX(-5px); }
-    75%      { transform: translateX(5px); }
-}
-
-/* Correct answer */
-.mini-cell.correct {
-    background: #d4ac0d !important;
-    color: #fff !important;
-}
-
-/* Answer display row (letter boxes above mini grid) */
-.answer-row {
+/* صف الإجابة */
+.cw-answer-row {
     display: flex;
     gap: 6px;
     flex-wrap: wrap;
     justify-content: center;
 }
-
-.answer-box {
+.cw-answer-box {
     width: 44px;
     height: 44px;
-    background: rgba(20, 40, 60, 0.6);
+    background: rgba(15,35,60,0.7);
+    border: 2px dashed rgba(255,255,255,0.25);
     border-radius: 10px;
-    border: 2px dashed rgba(255,255,255,0.2);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.3rem;
-    font-weight: 800;
+    font-weight: 900;
     color: #f1c40f;
     font-family: 'Cairo', sans-serif;
-    transition: 0.15s;
+    transition: background 0.15s, border-color 0.15s;
+    flex-shrink: 0;
 }
-.answer-box.filled {
-    background: rgba(241,196,15,0.2);
-    border-color: #f1c40f;
+.cw-answer-box.cw-box-filled {
+    background: rgba(241,196,15,0.18);
     border-style: solid;
+    border-color: #f1c40f;
 }
-.answer-box.filled-correct {
-    background: #d4ac0d;
-    border-color: #f9e58a;
-    color: #fff;
+/* حرف مكشوف مسبقاً (من تقاطع محلول) */
+.cw-answer-box.cw-prefilled {
+    background: rgba(39,174,96,0.25);
+    border-color: #27ae60;
+    border-style: solid;
+    color: #7deca1;
+    cursor: default;
+}
+/* أنيميشن اهتزاز خطأ */
+.cw-answer-row.cw-shake {
+    animation: cwShake 0.5s ease;
+}
+@keyframes cwShake {
+    0%,100% { transform: translateX(0); }
+    20%     { transform: translateX(-8px); }
+    40%     { transform: translateX(8px); }
+    60%     { transform: translateX(-6px); }
+    80%     { transform: translateX(6px); }
 }
 
-/* Confirm button */
-.confirm-word-btn {
-    background: #27ae60;
-    color: #fff;
-    border: none;
-    border-radius: 44px;
-    padding: 10px 28px;
-    font-size: 1rem;
-    font-weight: 800;
-    font-family: 'Cairo', sans-serif;
-    box-shadow: 0 5px 0 #1e8449, 0 8px 18px rgba(39,174,96,0.3);
-    cursor: pointer;
-    transition: 0.1s;
+/* لوحة الحروف */
+.cw-letter-board {
+    display: grid;
+    gap: 8px;
+    justify-content: center;
 }
-.confirm-word-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #1e8449; }
+.cw-letter-btn {
+    width: 48px;
+    height: 48px;
+    background: #dce8f0;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: #0a2744;
+    box-shadow: 0 5px 0 #9bafc0, 0 4px 10px rgba(0,0,0,0.15);
+    cursor: pointer;
+    transition: transform 0.08s, box-shadow 0.08s, background 0.1s, opacity 0.15s;
+    user-select: none;
+    font-family: 'Cairo', sans-serif;
+    flex-shrink: 0;
+}
+.cw-letter-btn:active:not(.cw-btn-used) {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #9bafc0;
+}
+.cw-letter-btn.cw-btn-used {
+    opacity: 0.35;
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: translateY(3px);
+}
+
+/* زر المسح */
+.cw-clear-btn {
+    background: rgba(231,76,60,0.18);
+    color: #e74c3c;
+    border: 2px solid rgba(231,76,60,0.4);
+    border-radius: 44px;
+    padding: 8px 24px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    font-family: 'Cairo', sans-serif;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.cw-clear-btn:active { background: rgba(231,76,60,0.35); }
 
 /* ==============================
-   FOOTER — HINT BUTTONS
+   FOOTER — أزرار التلميح
    ============================== */
 .game-footer {
     flex-shrink: 0;
@@ -660,7 +714,7 @@
 .next-btn {
     background: #27ae60;
     color: #fff;
-    border: none;
+    border: 2px solid #a3e4d7;
     border-radius: 44px;
     padding: 13px 38px;
     font-size: 1.2rem;
@@ -670,7 +724,6 @@
     cursor: pointer;
     margin-top: 8px;
     transition: 0.1s;
-    border: 2px solid #a3e4d7;
 }
 .next-btn:active { transform: translateY(5px); box-shadow: 0 2px 0 #1e8449; }
 
