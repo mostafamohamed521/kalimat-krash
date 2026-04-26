@@ -1,6 +1,5 @@
 // ============================================
 // KALIMAT CRASH — map.js
-// خريطة 100 مستوى — مسار أفعواني بتباعد مناسب
 // ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -51,7 +50,6 @@ function setupWaveCanvas() {
     drawWaves();
 }
 
-// ==================== خريطة المستويات ====================
 
 let mapCanvas, mapCtx;
 let panX = 0, panY = 0;
@@ -59,8 +57,8 @@ let isDragging = false, lastMouseX = 0, lastMouseY = 0;
 let levels = [];
 
 const LEVEL_COUNT = 100;
-const RADIUS = 30;          // نصف قطر الدائرة
-const SPACING = 90;         // المسافة بين مركز كل مستوى والتالي (px)
+const RADIUS = 30;          
+const SPACING = 90;         
 const MAP_W = 800;
 
 const MODE_COLORS = {
@@ -71,17 +69,16 @@ const MODE_COLORS = {
 };
 const LOCKED_COLORS = { fill: '#5d6d7e', shadow: '#34495e', border: '#bdc3c7', text: 'rgba(255,255,255,0.5)' };
 
-// توليد مسار أفعواني لـ 100 نقطة بتباعد ثابت
 function generateSnakePath(count) {
     const pts = [];
     const mapHeight = (count - 1) * SPACING + RADIUS * 2 + 40;
     const centerX = MAP_W / 2;
-    const amplitude = (MAP_W / 2) - RADIUS - 20; // اتساع الانحناء
+    const amplitude = (MAP_W / 2) - RADIUS - 20; 
 
     for (let i = 0; i < count; i++) {
-        // نبدأ من الأسفل (مستوى 1) إلى الأعلى (مستوى 100)
+
         const y = mapHeight - RADIUS - 20 - i * SPACING;
-        // موجة جيبية تعطي شكل أفعوان واضح
+
         const wave = Math.sin(i * Math.PI / 6) * amplitude * 0.45;
         const x = centerX + wave;
         pts.push({ x, y });
@@ -99,7 +96,7 @@ function initMap() {
         mapCanvas.height = window.innerHeight;
 
         const { mapHeight } = generateSnakePath(LEVEL_COUNT);
-        // نبدأ العرض من الأسفل (مستوى 1 ظاهر)
+
         panX = (mapCanvas.width  - MAP_W) / 2;
         panY = mapCanvas.height - mapHeight - 20;
         clampPan();
@@ -109,7 +106,6 @@ function initMap() {
     window.addEventListener('resize', resize);
     resize();
 
-    // سحب بالماوس
     mapCanvas.addEventListener('mousedown', e => {
         isDragging = true;
         lastMouseX = e.clientX;
@@ -127,7 +123,6 @@ function initMap() {
     });
     window.addEventListener('mouseup', () => { isDragging = false; mapCanvas.style.cursor = 'grab'; });
 
-    // سحب باللمس
     mapCanvas.addEventListener('touchstart', e => {
         e.preventDefault();
         isDragging = true;
@@ -146,10 +141,8 @@ function initMap() {
     }, { passive: false });
     mapCanvas.addEventListener('touchend', () => { isDragging = false; });
 
-    // نقر لفتح مستوى
     mapCanvas.addEventListener('click', handleMapClick);
 
-    // لوحة المفاتيح
     window.addEventListener('keydown', e => {
         const s = 80;
         if (e.key === 'ArrowUp')    panY += s;
@@ -161,12 +154,11 @@ function initMap() {
 
 function clampPan() {
     const { mapHeight } = generateSnakePath(LEVEL_COUNT);
-    // نمنع التمرير خارج حدود الخريطة
+
     const minY = mapCanvas.height - mapHeight - 40;
     const maxY = 40;
     panY = Math.min(maxY, Math.max(minY, panY));
 
-    // أفقياً نسمح بهامش صغير
     panX = Math.min(40, Math.max(mapCanvas.width - MAP_W - 40, panX));
 }
 
@@ -178,11 +170,10 @@ function drawMap() {
 
     const { pts } = generateSnakePath(LEVEL_COUNT);
 
-    // ---- رسم المسار المتقطع ----
     ctx.beginPath();
     ctx.moveTo(pts[0].x, pts[0].y);
     for (let i = 1; i < pts.length; i++) {
-        // منحنى ناعم بين نقطتين
+
         const prev = pts[i - 1], curr = pts[i];
         const cx = (prev.x + curr.x) / 2, cy = (prev.y + curr.y) / 2;
         ctx.quadraticCurveTo(prev.x, prev.y, cx, cy);
@@ -195,7 +186,6 @@ function drawMap() {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // ---- رسم دوائر المستويات ----
     for (let i = 0; i < pts.length; i++) {
         if (i >= levels.length) break;
         drawLevelCircle(ctx, pts[i].x, pts[i].y, levels[i]);
@@ -208,13 +198,11 @@ function drawLevelCircle(ctx, x, y, lvl) {
     const r = RADIUS;
     const colors = lvl.unlocked ? MODE_COLORS[lvl.mode] : LOCKED_COLORS;
 
-    // ظل أسفل (تأثير ثلاثي الأبعاد)
     ctx.beginPath();
     ctx.arc(x, y + 6, r, 0, Math.PI * 2);
     ctx.fillStyle = colors.shadow;
     ctx.fill();
 
-    // الدائرة الرئيسية بتدرج
     const grad = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, 2, x, y, r);
     grad.addColorStop(0, lightenColor(colors.fill, 40));
     grad.addColorStop(0.65, colors.fill);
@@ -225,18 +213,15 @@ function drawLevelCircle(ctx, x, y, lvl) {
     ctx.fillStyle = grad;
     ctx.fill();
 
-    // حلقة الحدود
     ctx.strokeStyle = colors.border;
     ctx.lineWidth = 3;
     ctx.stroke();
 
-    // بريق داخلي
     ctx.beginPath();
     ctx.arc(x - r * 0.28, y - r * 0.3, r * 0.3, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(255,255,255,0.2)';
     ctx.fill();
 
-    // النص
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
@@ -255,7 +240,6 @@ function drawLevelCircle(ctx, x, y, lvl) {
         ctx.fillText(lvl.id, x, y + 12);
     }
 
-    // نضيف نقطة صفراء صغيرة للمستوى الحالي (آخر مستوى مفتوح)
     if (lvl.unlocked) {
         const nextLocked = levels[lvl.id] && !levels[lvl.id].unlocked;
         if (nextLocked || lvl.id === 100) {
@@ -325,7 +309,6 @@ function showMapToast(msg) {
     setTimeout(() => { t.style.opacity = '0'; }, 2200);
 }
 
-// ==================== نافذة المساعدة ====================
 
 function setupHelpModal() {
     const btn   = document.getElementById('helpButton');

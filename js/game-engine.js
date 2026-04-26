@@ -1,6 +1,5 @@
 // ============================================
 // KALIMAT CRASH — game-engine.js
-// محرك اللعبة الكامل — 4 مودات
 // ============================================
 
 document.addEventListener('DOMContentLoaded', initGame);
@@ -8,13 +7,13 @@ document.addEventListener('DOMContentLoaded', initGame);
 // ==================== GLOBALS ====================
 let currentLevel, levelData, currentMode;
 let playerCoins = 100;
-let targetWords = []; // [{word, found, color, path}]
+let targetWords = []; 
 
 // Mode 1 & 2
 let gridRows = 5, gridCols = 5;
-let letterGrid = []; // 2D array of chars
-let usedCells = [];  // 2D bool
-let wordPaths = new Map(); // word → [{r,c}]
+let letterGrid = []; 
+let usedCells = []; 
+let wordPaths = new Map(); 
 let isSelecting = false;
 let selPath = [];
 let currentColor = null;
@@ -28,7 +27,7 @@ let wsStart = null;
 
 // Mode 4
 let cwWords = [];
-let cwGrid = [];       // 2D: {letter, wordIndices:[]} | null
+let cwGrid = [];       
 let cwFoundFlags = [];
 let cwActiveWordIdx = null;
 let miniLetters = [];
@@ -109,7 +108,7 @@ function initMode2() {
     setupGridEvents();
 }
 
-// ---- بناء الجريد (المود 1 و2) بدقة بناءً على الكلمات فقط ----
+
 function buildAndRenderStandardGrid(words) {
     const result = buildExactWordGrid(words);
     gridRows = result.rows;
@@ -118,7 +117,7 @@ function buildAndRenderStandardGrid(words) {
     wordPaths  = result.wordPaths;
     usedCells  = Array(gridRows).fill(null).map(() => Array(gridCols).fill(false));
 
-    // Hill Climbing: يملأ الخلايا الفاضية بحروف عشوائية متنوعة
+
     const occupiedKeys = new Set();
     wordPaths.forEach(path => path.forEach(p => occupiedKeys.add(`${p.r},${p.c}`)));
     const improved = hillClimbingFillGrid(letterGrid, occupiedKeys);
@@ -164,7 +163,6 @@ function renderWordSlots() {
     });
 }
 
-// ---- أحداث الجريد (المود 1 و2) ----
 function setupGridEvents() {
     const grid = $('letterGrid');
 
@@ -405,32 +403,15 @@ function checkWsWord(word, path) {
 }
 
 // ==================== MODE 4: كلمات متقاطعة ====================
-// المنطق الكامل:
-// 1) نبني الجريد من بيانات المستوى — كل خلية فيها حرف أو null
-// 2) نعرض الجريد: الخلايا التي فيها حرف تظهر فارغة (مربع معتم)
-//    إلا إذا كانت نقطة تقاطع محلولة — فتظهر الحرف مباشرة
-// 3) اللاعب ينقر على خلية → نختار الكلمة التي تمر بها → تُضاء
-//    وتنفتح لوحة الحروف أسفل الجريد
-// 4) اللاعب يختار الحروف بالترتيب → تأكيد → إن صح تظهر الحروف في الجريد
-// 5) الحروف المتشاركة بين كلمتين تظهر تلقائياً عند حل إحداهما
-// 6) إذا خلية متقاطعة وكلتا الكلمتين محلولتان ← الحرف يبقى ظاهراً
 
-// ---- متغيرات المود 4 ----
-// cwWords      : [{word, clue, row, col, dir}]
-// cwGrid       : 2D — الحرف الصحيح أو null (فراغ)
-// cwReveal     : 2D boolean — هل الخلية مكشوفة للمشاهد
-// cwFoundFlags : boolean[]
-// cwActiveWordIdx, miniLetters, cwPickedIndices  (معرّفة في globals)
-
-let cwReveal = [];   // 2D: true = الحرف ظاهر في الجريد
-let cwMinR = 0, cwMinC = 0; // إزاحة الجريد المضغوط
+let cwReveal = [];  
+let cwMinR = 0, cwMinC = 0; 
 
 function initMode4() {
     const raw  = levelData.crosswordWords;
     const rows = levelData.gridRows;
     const cols = levelData.gridCols;
 
-    // بناء الجريد مع التحقق من التقاطعات
     const { grid, placedWords } = buildCrosswordGrid(raw, rows, cols);
 
     cwWords      = placedWords;
@@ -445,7 +426,6 @@ function initMode4() {
         return;
     }
 
-    // حساب حدود الجريد الفعلية (نضغط الفراغات الزائدة)
     cwMinR = rows; cwMinC = cols;
     let maxR = 0,  maxC  = 0;
     cwWords.forEach(({ word, row, col, dir }) => {
@@ -457,14 +437,12 @@ function initMode4() {
         if (eC   > maxC)   maxC   = eC;
     });
 
-    // مصفوفة الكشف — كل الخلايا مخفية في البداية
     cwReveal = Array(rows).fill(null).map(() => Array(cols).fill(false));
 
     renderCwGrid(cwMinR, cwMinC, maxR, maxC);
     setupCwEvents();
 }
 
-// ---- رسم الجريد ----
 function renderCwGrid(minR, minC, maxR, maxC) {
     const sec = $('crosswordGridSection');
     sec.innerHTML = '';
@@ -486,12 +464,11 @@ function renderCwGrid(minR, minC, maxR, maxC) {
             const letter = cwGrid[r] !== undefined ? cwGrid[r][c] : null;
 
             if (letter === null || letter === undefined) {
-                // فراغ — لا خلية
+
                 cell.className = 'cw-void';
             } else {
                 cell.className = 'cw-cell';
 
-                // رقم الكلمة التي تبدأ هنا
                 const starterIdx = cwWords.findIndex(w => w.row === r && w.col === c);
                 if (starterIdx !== -1) {
                     const numEl = document.createElement('span');
@@ -500,7 +477,6 @@ function renderCwGrid(minR, minC, maxR, maxC) {
                     cell.appendChild(numEl);
                 }
 
-                // محتوى الخلية: إما مكشوف أو مخفي
                 const letterEl = document.createElement('span');
                 letterEl.className = 'cw-letter';
                 if (cwReveal[r][c]) {
@@ -519,7 +495,7 @@ function renderCwGrid(minR, minC, maxR, maxC) {
     sec.appendChild(wrap);
 }
 
-// ---- أحداث النقر على الجريد ----
+
 function setupCwEvents() {
     $('crosswordGridSection').addEventListener('click', e => {
         const cell = e.target.closest('.cw-cell');
@@ -528,8 +504,7 @@ function setupCwEvents() {
         const r = +cell.dataset.r;
         const c = +cell.dataset.c;
 
-        // إيجاد الكلمة غير المحلولة التي تمر بهذه الخلية
-        // إذا نقر مرة ثانية على نفس الخلية وفيها كلمتان → نبدّل بينهما
+     
         const candidates = [];
         cwWords.forEach((wInfo, i) => {
             if (cwFoundFlags[i]) return;
@@ -539,7 +514,6 @@ function setupCwEvents() {
 
         if (candidates.length === 0) return;
 
-        // إذا كانت الكلمة النشطة في المرشحين → خذ التالية منهم (toggle)
         let nextIdx;
         if (cwActiveWordIdx !== null && candidates.includes(cwActiveWordIdx)) {
             const pos = candidates.indexOf(cwActiveWordIdx);
@@ -555,7 +529,6 @@ function setupCwEvents() {
     });
 }
 
-// ---- مساعد: إرجاع خلايا كلمة ----
 function getCwWordCells(wInfo) {
     const cells = [];
     for (let i = 0; i < wInfo.word.length; i++) {
@@ -567,9 +540,9 @@ function getCwWordCells(wInfo) {
     return cells;
 }
 
-// ---- إضاءة الكلمة المختارة في الجريد ----
+
 function highlightCwWord(wIdx) {
-    // إزالة الإضاءة السابقة
+
     document.querySelectorAll('.cw-cell.cw-active').forEach(el => el.classList.remove('cw-active'));
 
     const wInfo = cwWords[wIdx];
@@ -579,7 +552,6 @@ function highlightCwWord(wIdx) {
     });
 }
 
-// ---- فتح لوحة الإدخال لكلمة ----
 function openCwPanel(wIdx) {
     const clueArea = $('crosswordClueArea');
     const clueImg  = $('clueImage');
@@ -590,7 +562,6 @@ function openCwPanel(wIdx) {
     const wInfo = cwWords[wIdx];
     const word  = wInfo.word;
 
-    // التلميح (إيموجي أو نص)
     clueImg.innerHTML = '';
     const clueEl = document.createElement('span');
     clueEl.className = 'cw-clue-icon';
@@ -601,22 +572,20 @@ function openCwPanel(wIdx) {
     clueImg.appendChild(clueEl);
     clueImg.appendChild(clueLabel);
 
-    // بناء حروف الاختيار: حروف الكلمة + حروف عشوائية زائدة
     const ARABIC = 'ابتثجحخدذرزسشصضطظعغفقكلمنهوي';
-    const pool = [...word]; // حروف الكلمة
-    const extraCount = Math.min(5, Math.max(3, word.length)); // حروف زائدة بحجم منطقي
+    const pool = [...word]; 
+    const extraCount = Math.min(5, Math.max(3, word.length));
     let attempts = 0;
     while (pool.length < word.length + extraCount && attempts < 200) {
         const ch = ARABIC[Math.floor(Math.random() * ARABIC.length)];
         if (!pool.includes(ch)) pool.push(ch);
         attempts++;
     }
-    // خلط
+
     miniLetters = pool.sort(() => Math.random() - 0.5);
 
     miniWrap.innerHTML = '';
 
-    // --- صف الإجابة ---
     const answerRow = document.createElement('div');
     answerRow.className = 'cw-answer-row';
     answerRow.id = 'cwAnswerRow';
@@ -624,7 +593,7 @@ function openCwPanel(wIdx) {
         const box = document.createElement('div');
         box.className = 'cw-answer-box';
         box.dataset.pos = i;
-        // إذا كان الحرف مكشوفاً بالفعل (تقاطع محلول) → نظهره ثابتاً
+
         const cells = getCwWordCells(wInfo);
         if (cwReveal[cells[i].r][cells[i].c]) {
             box.textContent = word[i];
@@ -634,7 +603,7 @@ function openCwPanel(wIdx) {
     }
     miniWrap.appendChild(answerRow);
 
-    // --- لوحة الحروف ---
+
     const letterBoard = document.createElement('div');
     letterBoard.className = 'cw-letter-board';
     const miniCols = Math.ceil(miniLetters.length / 2);
@@ -650,7 +619,6 @@ function openCwPanel(wIdx) {
     });
     miniWrap.appendChild(letterBoard);
 
-    // --- زر مسح الإجابة ---
     const clearBtn = document.createElement('button');
     clearBtn.className = 'cw-clear-btn';
     clearBtn.textContent = '✕ مسح';
@@ -658,30 +626,25 @@ function openCwPanel(wIdx) {
     miniWrap.appendChild(clearBtn);
 }
 
-// ---- اختيار حرف من اللوحة ----
 function cwLetterPick(i, btn) {
     if (cwActiveWordIdx === null) return;
     const word = cwWords[cwActiveWordIdx].word;
 
-    // لا تقبل أكثر من طول الكلمة ولا تكرار نفس الزر
     if (cwPickedIndices.includes(i)) return;
 
-    // إيجاد أول خانة فارغة غير مملوءة مسبقاً
     const wInfo  = cwWords[cwActiveWordIdx];
     const wCells = getCwWordCells(wInfo);
 
     let targetPos = -1;
     for (let pos = 0; pos < word.length; pos++) {
-        if (cwPickedIndices.length > pos) continue; // ممتلئة
-        if (cwReveal[wCells[pos].r][wCells[pos].c]) continue; // مكشوفة مسبقاً (تقاطع)
-        // هل تم ملء هذا الموضع في cwPickedIndices؟
-        // cwPickedIndices[pos] = index في miniLetters
+        if (cwPickedIndices.length > pos) continue; 
+        if (cwReveal[wCells[pos].r][wCells[pos].c]) continue;
+      
         if (cwPickedIndices[pos] !== undefined) continue;
         targetPos = pos;
         break;
     }
 
-    // بناء قائمة المواضع الحرة (غير مكشوفة وغير مختارة)
     const freePositions = [];
     for (let pos = 0; pos < word.length; pos++) {
         if (cwReveal[wCells[pos].r][wCells[pos].c]) continue;
@@ -695,17 +658,15 @@ function cwLetterPick(i, btn) {
     cwPickedIndices[fillPos] = i;
     btn.classList.add('cw-btn-used');
 
-    // تحديث صف الإجابة
     refreshAnswerRow(wInfo, word, wCells);
 
-    // إذا اكتمل المجموع → تحقق تلقائي
     const allFilled = isAnswerComplete(word, wCells);
     if (allFilled) setTimeout(confirmCwWord, 280);
 }
 
 function isAnswerComplete(word, wCells) {
     for (let pos = 0; pos < word.length; pos++) {
-        if (cwReveal[wCells[pos].r][wCells[pos].c]) continue; // مكشوف تلقائياً
+        if (cwReveal[wCells[pos].r][wCells[pos].c]) continue;
         if (cwPickedIndices[pos] === undefined) return false;
     }
     return true;
@@ -715,7 +676,7 @@ function refreshAnswerRow(wInfo, word, wCells) {
     const row = $('cwAnswerRow');
     if (!row) return;
     [...row.children].forEach((box, pos) => {
-        if (box.classList.contains('cw-prefilled')) return; // ثابت
+        if (box.classList.contains('cw-prefilled')) return;
         if (cwPickedIndices[pos] !== undefined) {
             box.textContent = miniLetters[cwPickedIndices[pos]];
             box.classList.add('cw-box-filled');
@@ -726,7 +687,6 @@ function refreshAnswerRow(wInfo, word, wCells) {
     });
 }
 
-// ---- مسح الإجابة ----
 function cwClearAnswer() {
     if (cwActiveWordIdx === null) return;
     cwPickedIndices = [];
@@ -736,14 +696,12 @@ function cwClearAnswer() {
     refreshAnswerRow(wInfo, wInfo.word, wCells);
 }
 
-// ---- تأكيد الإجابة ----
 function confirmCwWord() {
     if (cwActiveWordIdx === null) return;
     const wInfo  = cwWords[cwActiveWordIdx];
     const word   = wInfo.word;
     const wCells = getCwWordCells(wInfo);
 
-    // بناء الكلمة المُدخلة (مكشوفة مسبقاً + مختارة)
     let attempted = '';
     for (let pos = 0; pos < word.length; pos++) {
         if (cwReveal[wCells[pos].r][wCells[pos].c]) {
@@ -756,7 +714,7 @@ function confirmCwWord() {
     }
 
     if (attempted !== word) {
-        // إجابة خاطئة — وميض أحمر
+
         const row = $('cwAnswerRow');
         if (row) {
             row.classList.add('cw-shake');
@@ -775,16 +733,13 @@ function confirmCwWord() {
         return;
     }
 
-    // ===== إجابة صحيحة =====
     cwFoundFlags[cwActiveWordIdx] = true;
     playerCoins += 3;
     saveCoins(playerCoins);
     updateCoins();
 
-    // كشف حروف هذه الكلمة في cwReveal
     wCells.forEach(({ r, c }) => { cwReveal[r][c] = true; });
 
-    // تحديث الجريد: ظهور الحروف + تلوين الكلمة المحلولة
     wCells.forEach(({ r, c }, pos) => {
         const el = document.querySelector(`.cw-cell[data-r="${r}"][data-c="${c}"]`);
         if (!el) return;
@@ -794,14 +749,14 @@ function confirmCwWord() {
         const letterEl = el.querySelector('.cw-letter');
         if (letterEl) {
             letterEl.textContent = cwGrid[r][c];
-            // تأثير ظهور متتالي
+
             setTimeout(() => { el.classList.add('cw-reveal-anim'); }, pos * 80);
         }
     });
 
     showToast(`✅ ${word}`);
 
-    // إخفاء اللوحة بعد لحظة
+
     setTimeout(() => {
         $('crosswordClueArea').style.display = 'none';
         cwActiveWordIdx = null;
@@ -813,26 +768,12 @@ function confirmCwWord() {
 }
 
 // ==================== تلميحات ====================
-// تلميح حرف  (10 🪙): يكشف الحرف الأول من أول كلمة لم يجدها اللاعب بعد
-//   - المود 1 & 2: يُضيء الخلية الأولى من مسار الكلمة في الجريد
-//     [خوارزمية Best-First Search — تجد الخلية القريبة من المركز]
-//   - المود 3: يُضيء الخلية التي تحتوي الحرف الأول في Word Search
-//     [خوارزمية Best-First Search — تفضّل المواضع المركزية]
-//   - المود 4: يضع الحرف الأول للكلمة غير المحلولة في صف الإجابة تلقائياً
-//     (إن لم تكن كلمة مختارة → يختار أول كلمة غير محلولة أولاً)
-//
-// تلميح كلمة (20 🪙): يحل أول كلمة لم يجدها اللاعب بعد كاملاً
-//   - المود 1 & 2: يُضيء المسار كاملاً ثم يحل الكلمة
-//     [خوارزمية A* Search — تتبع المسار الأمثل]
-//   - المود 3: يكشف مسار الكلمة كاملاً في Word Search بالتتبع المباشر
-//   - المود 4: يختار أول كلمة غير محلولة ويملأها تلقائياً ويؤكدها
 
 function setupHintButtons() {
     $('hintLetterBtn').addEventListener('click', hintLetter);
     $('hintWordBtn').addEventListener('click',   hintWord);
 }
 
-// ---- مساعد: إيجاد أول كلمة لم تُحل بعد (مشتركة بين المودات) ----
 function getFirstUnfoundWord() {
     if (currentMode <= 2) return targetWords.find(t => !t.found) || null;
     if (currentMode === 3) return targetWords.find(t => !t.found) || null;
@@ -846,27 +787,22 @@ function getFirstUnfoundWord() {
 function hintLetter() {
     if (playerCoins < 10) { showToast('💰 لا تملك كوينز كافية'); return; }
 
-    // ── المود 1 & 2 ──────────────────────────────────────────────
     if (currentMode <= 2) {
-        // نجد أول كلمة لم تُحل
+
         const unfound = targetWords.find(t => !t.found);
         if (!unfound) { showToast('✨ أحسنت! كل الكلمات محلولة'); return; }
 
-        // [Best-First Search]: نجد خلية الحرف الأول من مسار الكلمة
         const path = wordPaths.get(unfound.word);
         if (!path || path.length === 0) return;
 
-        // الحرف الأول = path[0]
         const firstCell = path[0];
         const el = document.querySelector(`.grid-cell[data-r="${firstCell.r}"][data-c="${firstCell.c}"]`);
         if (!el) return;
 
-        // خصم الكوينز بعد التحقق من وجود الكلمة
         playerCoins -= 10;
         saveCoins(playerCoins);
         updateCoins();
 
-        // إضاءة الحرف الأول مع نبضة
         el.classList.add('hint-flash');
         el.style.background = unfound.color;
         el.style.color = '#fff';
@@ -884,7 +820,6 @@ function hintLetter() {
         const unfound = targetWords.find(t => !t.found);
         if (!unfound) { showToast('✨ أحسنت! كل الكلمات محلولة'); return; }
 
-        // [Best-First Search]: نجد خلية الحرف الأول للكلمة في الجريد
         const firstChar = unfound.word[0];
         const result = bestFirstSearchChar(wsGrid, firstChar, wsUsed);
         if (!result) return;
@@ -908,7 +843,7 @@ function hintLetter() {
 
     // ── المود 4 ──────────────────────────────────────────────────
     } else if (currentMode === 4) {
-        // نجد أول كلمة غير محلولة
+
         const unfoundIdx = cwFoundFlags.findIndex(f => !f);
         if (unfoundIdx === -1) { showToast('✨ أحسنت! كل الكلمات محلولة'); return; }
 
@@ -916,13 +851,12 @@ function hintLetter() {
         saveCoins(playerCoins);
         updateCoins();
 
-        // إذا لم تكن هذه الكلمة مختارة → نختارها أولاً
         if (cwActiveWordIdx !== unfoundIdx) {
             cwActiveWordIdx = unfoundIdx;
             cwPickedIndices = [];
             highlightCwWord(unfoundIdx);
             openCwPanel(unfoundIdx);
-            // ننتظر قليلاً حتى تُبنى اللوحة ثم نضع الحرف الأول
+
             setTimeout(() => placeFirstLetterInPanel(unfoundIdx), 150);
         } else {
             placeFirstLetterInPanel(unfoundIdx);
@@ -930,19 +864,17 @@ function hintLetter() {
     }
 }
 
-// مساعد: يضع الحرف الأول للكلمة في لوحة الإدخال (للمود 4)
 function placeFirstLetterInPanel(wIdx) {
     const wInfo  = cwWords[wIdx];
     const word   = wInfo.word;
     const wCells = getCwWordCells(wInfo);
 
-    // نجد أول موضع فارغ (غير مكشوف وغير مختار)
     for (let pos = 0; pos < word.length; pos++) {
         if (cwReveal[wCells[pos].r][wCells[pos].c]) continue;
         if (cwPickedIndices[pos] !== undefined) continue;
-        // الحرف الصحيح لهذا الموضع
+
         const ch = word[pos];
-        // نجده في لوحة الحروف
+
         const pickedVals = Object.values(cwPickedIndices);
         const btnIdx = miniLetters.findIndex((l, i) => l === ch && !pickedVals.includes(i));
         if (btnIdx === -1) break;
@@ -965,15 +897,14 @@ function hintWord() {
         saveCoins(playerCoins);
         updateCoins();
 
-        // [A* Search]: نجد المسار الكامل للكلمة في الجريد
         const path = aStarFindWord(unfound.word, letterGrid, usedCells);
         if (path) {
-            // نضيء المسار أولاً
+
             path.forEach(p => {
                 const el = document.querySelector(`.grid-cell[data-r="${p.r}"][data-c="${p.c}"]`);
                 if (el) { el.style.background = unfound.color; el.style.color = '#fff'; }
             });
-            // ثم نحله بعد لحظة
+
             setTimeout(() => checkWord(unfound.word, path), 900);
         } else {
             showToast('❌ تعذّر إيجاد مسار الكلمة');
@@ -988,7 +919,6 @@ function hintWord() {
         saveCoins(playerCoins);
         updateCoins();
 
-        // نبحث عن مسار الكلمة في wsGrid بالاتجاهات الثمانية
         const rows = wsGrid.length, cols = wsGrid[0].length;
         const DIRS = [[0,1],[0,-1],[1,0],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]];
         let foundPath = null;
@@ -1026,7 +956,6 @@ function hintWord() {
         saveCoins(playerCoins);
         updateCoins();
 
-        // إذا لم تكن الكلمة مختارة → نختارها وننتظر بناء اللوحة
         if (cwActiveWordIdx !== unfoundIdx) {
             cwActiveWordIdx = unfoundIdx;
             cwPickedIndices = [];
@@ -1039,7 +968,6 @@ function hintWord() {
     }
 }
 
-// مساعد: يحل الكلمة النشطة كاملاً في المود 4
 function solveActiveCwWord() {
     if (cwActiveWordIdx === null) return;
     const wInfo  = cwWords[cwActiveWordIdx];
@@ -1065,7 +993,6 @@ function solveActiveCwWord() {
     setTimeout(confirmCwWord, 350);
 }
 
-// ==================== التنقل والإنجاز ====================
 
 function setupNavButtons() {
     $('backToMapBtn').addEventListener('click', () => {
@@ -1094,7 +1021,6 @@ function showCompletion() {
     updateCoins();
 }
 
-// ==================== أدوات مساعدة ====================
 
 function updateCoins() {
     $('coinAmount').textContent = playerCoins;
